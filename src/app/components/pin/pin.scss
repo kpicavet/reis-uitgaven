@@ -1,0 +1,110 @@
+:host {
+  display: block;
+}
+
+.pin {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  gap: 1.5rem;
+
+  &__title {
+    text-align: center;
+
+    .pin__mark {
+      display: block;
+      font-size: 2.4rem;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(0 0 16px rgba(240, 201, 122, 0.4));
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin: 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+    }
+  }
+
+  &__bullets {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+
+    &--shake {
+      animation: shake 0.45s ease;
+    }
+  }
+
+  &__bullet {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    transition: all 0.15s ease;
+
+    &--gevuld {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(240, 201, 122, 0.5);
+    }
+  }
+
+  &__fout {
+    color: var(--danger);
+    font-size: 0.9rem;
+    height: 1.2rem;
+    margin: 0;
+
+    &--leeg {
+      visibility: hidden;
+    }
+  }
+
+  &__keys {
+    display: grid;
+    grid-template-columns: repeat(3, 70px);
+    gap: 0.9rem;
+    margin-top: 1rem;
+  }
+
+  &__key {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 1.6rem;
+    font-weight: 300;
+    transition: all 0.12s ease;
+
+    &:active {
+      background: rgba(240, 201, 122, 0.18);
+      border-color: var(--gold);
+      transform: scale(0.94);
+    }
+
+    &--actie {
+      font-size: 1.3rem;
+      color: var(--text-muted);
+    }
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx -p @angular/cli ng version)",
+      "Bash(npm view *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:4200/)",
+      "Bash(curl -s http://localhost:4200/)",
+      "Bash(npx ng *)"
+    ]
+  }
+}

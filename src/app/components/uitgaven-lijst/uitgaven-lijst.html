@@ -1,0 +1,49 @@
+<div class="lijst">
+  @if (dagen().length === 0) {
+    <div class="leeg">
+      <span class="leeg__mark">✦</span>
+      <h2>Nog geen uitgaven</h2>
+      <p>Tik op de + knop om je eerste uitgave toe te voegen.</p>
+    </div>
+  } @else {
+    @for (dag of dagen(); track dag.datum) {
+      <section class="dag">
+        <header class="dag__kop">
+          <h2 class="dag__label">{{ dag.label }}</h2>
+          <div class="dag__totalen">
+            @for (t of dag.totalen; track t.valuta) {
+              <span class="dag__totaal">
+                {{ t.symbool }} {{ t.bedrag | number: '1.2-2' }}
+              </span>
+            }
+          </div>
+        </header>
+
+        <ul class="dag__items">
+          @for (u of dag.uitgaven; track u.id) {
+            <li class="item">
+              <div class="item__bedrag">
+                <span class="item__symbool">{{ symbool(u.valuta) }}</span>
+                <span class="item__cijfers">{{ u.bedrag | number: '1.2-2' }}</span>
+                <span class="item__valuta">{{ u.valuta }}</span>
+              </div>
+              @if (u.omschrijving) {
+                <div class="item__omschrijving">{{ u.omschrijving }}</div>
+              }
+              <button
+                type="button"
+                class="item__verwijder"
+                (click)="vraagVerwijderen(u)"
+                aria-label="Verwijder uitgave"
+              >
+                ✕
+              </button>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <div class="ruimte"></div>
+  }
+</div>

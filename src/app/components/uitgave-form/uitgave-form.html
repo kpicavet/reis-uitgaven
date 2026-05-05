@@ -1,0 +1,80 @@
+<div class="sheet-backdrop" (click)="achtergrond($event)">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Nieuwe uitgave">
+    <div class="sheet__handle" aria-hidden="true"></div>
+
+    <header class="sheet__kop">
+      <h2>Nieuwe uitgave</h2>
+      <button type="button" class="sheet__sluit" (click)="sluiten()" aria-label="Sluiten">✕</button>
+    </header>
+
+    <form class="sheet__form" (submit)="$event.preventDefault(); opslaan()">
+      <label class="veld">
+        <span class="veld__label">Datum</span>
+        <input
+          type="date"
+          [value]="datum()"
+          (input)="setDatum($any($event.target).value)"
+          class="veld__input"
+          required
+        />
+      </label>
+
+      <div class="veld-rij">
+        <label class="veld veld--bedrag">
+          <span class="veld__label">Bedrag</span>
+          <input
+            type="text"
+            inputmode="decimal"
+            placeholder="0,00"
+            [value]="bedrag()"
+            (input)="setBedrag($any($event.target).value)"
+            (blur)="markeerBedragAangeraakt()"
+            class="veld__input veld__input--bedrag"
+            [class.veld__input--fout]="raakBedrag() && bedragNummer() === null"
+            autofocus
+          />
+        </label>
+
+        <label class="veld veld--valuta">
+          <span class="veld__label">Valuta</span>
+          <select
+            [value]="valuta()"
+            (change)="setValuta($any($event.target).value)"
+            class="veld__input veld__input--select"
+          >
+            @for (v of valutas; track v.code) {
+              <option [value]="v.code">{{ v.code }} {{ v.symbool }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <label class="veld">
+        <span class="veld__label">Omschrijving (optioneel)</span>
+        <input
+          type="text"
+          [value]="omschrijving()"
+          (input)="setOmschrijving($any($event.target).value)"
+          maxlength="80"
+          placeholder="bv. ontbijt op het terras"
+          class="veld__input"
+        />
+      </label>
+
+      <div class="sheet__acties">
+        <button type="button" class="btn btn--ghost" (click)="sluiten()">Annuleer</button>
+        <button
+          type="submit"
+          class="btn btn--primary"
+          [disabled]="!geldig() || bezig()"
+        >
+          @if (bezig()) {
+            Opslaan…
+          } @else {
+            Opslaan
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="app-shell">
+  @if (!ingelogd()) {
+    <app-pin />
+  } @else {
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__mark">✦</span>
+        <h1>Reis Uitgaven</h1>
+      </div>
+      <button class="topbar__logout" type="button" (click)="uitloggen()" aria-label="Uitloggen">
+        Uit
+      </button>
+    </header>
+
+    @if (fout(); as f) {
+      <div class="banner banner--error" role="alert">{{ f }}</div>
+    }
+
+    <app-uitgaven-lijst
+      [uitgaven]="uitgaven()"
+      (verwijderAangevraagd)="vraagBevestiging($event)"
+    />
+
+    <button
+      class="fab"
+      type="button"
+      (click)="openForm()"
+      aria-label="Nieuwe uitgave toevoegen"
+    >
+      <span aria-hidden="true">+</span>
+    </button>
+
+    @if (formOpen()) {
+      <app-uitgave-form
+        [bezig]="bezig()"
+        (opgeslagen)="opslaan($event)"
+        (gesloten)="sluitForm()"
+      />
+    }
+
+    @if (bevestigVerwijderen(); as u) {
+      <div class="modal-backdrop" (click)="annuleerVerwijderen()">
+        <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+          <h2>Verwijderen?</h2>
+          <p class="modal__text">
+            Weet je zeker dat je deze uitgave wilt verwijderen?
+          </p>
+          <div class="modal__details">
+            <span>{{ u.datum }}</span>
+            <span>{{ u.bedrag | number: '1.2-2' }} {{ u.valuta }}</span>
+          </div>
+          <div class="modal__buttons">
+            <button type="button" class="btn btn--ghost" (click)="annuleerVerwijderen()">
+              Annuleer
+            </button>
+            <button
+              type="button"
+              class="btn btn--danger"
+              (click)="bevestigEnVerwijder()"
+              [disabled]="bezig()"
+            >
+              Verwijder
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>

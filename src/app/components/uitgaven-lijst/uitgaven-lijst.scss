@@ -1,0 +1,152 @@
+:host {
+  display: block;
+}
+
+.lijst {
+  padding: 0.5rem 1rem 0;
+}
+
+.leeg {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--text-muted);
+
+  &__mark {
+    display: block;
+    font-size: 2.6rem;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    opacity: 0.6;
+  }
+
+  h2 {
+    color: var(--text);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+}
+
+.dag {
+  margin-bottom: 1.5rem;
+
+  &__kop {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.4rem 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+  }
+
+  &__label {
+    font-size: 1.05rem;
+    color: var(--gold);
+    text-transform: capitalize;
+    font-family: 'Playfair Display', serif;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  &__totalen {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  &__totaal {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  padding: 0.85rem 0.9rem 0.85rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--bg-card-hover);
+  }
+
+  &__bedrag {
+    grid-column: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__symbool {
+    color: var(--gold);
+    font-weight: 600;
+    font-size: 1.05rem;
+    min-width: 1.4rem;
+  }
+
+  &__cijfers {
+    color: var(--text);
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  &__valuta {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    margin-left: 0.2rem;
+  }
+
+  &__omschrijving {
+    grid-column: 1;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  &__verwijder {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+
+    &:hover,
+    &:active {
+      background: rgba(231, 111, 111, 0.15);
+      color: var(--danger);
+    }
+  }
+}
+
+.ruimte {
+  height: calc(6rem + var(--safe-bottom));
+}

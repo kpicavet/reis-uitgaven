@@ -1,0 +1,35 @@
+<div class="pin">
+  <div class="pin__title">
+    <span class="pin__mark">✦</span>
+    <h1>Reis Uitgaven</h1>
+    <p>Voer de gedeelde pincode in</p>
+  </div>
+
+  <div class="pin__bullets" [class.pin__bullets--shake]="fout()">
+    @for (gevuld of bullets(); track $index) {
+      <span class="pin__bullet" [class.pin__bullet--gevuld]="gevuld"></span>
+    }
+  </div>
+
+  @if (fout()) {
+    <p class="pin__fout">Onjuiste pincode</p>
+  } @else {
+    <p class="pin__fout pin__fout--leeg">&nbsp;</p>
+  }
+
+  <div class="pin__keys">
+    @for (toets of toetsen; track $index) {
+      @if (toets === '') {
+        <span></span>
+      } @else if (toets === 'wis') {
+        <button type="button" class="pin__key pin__key--actie" (click)="drukToets(toets)" aria-label="Wis">
+          ⌫
+        </button>
+      } @else {
+        <button type="button" class="pin__key" (click)="drukToets(toets)">
+          {{ toets }}
+        </button>
+      }
+    }
+  </div>
+</div>
