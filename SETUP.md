@@ -30,24 +30,43 @@ Daarna: `npm install` opnieuw als je dat al gedaan hebt op de oude versie.
 4. Locatie: kies `eur3 (europe-west)` of een Europese regio.
 5. Wacht tot de database klaar is.
 
-### Security rules openzetten
+### Anonymous Authentication aanzetten
 
-1. Klik op het tabblad **Regels** binnen Firestore.
-2. Vervang de inhoud door:
+De app logt elke bezoeker stil in als anonieme gebruiker. Daarna eisen de Firestore rules dat token. Dat blokkeert misbruik door bots die open Firebase databases scannen — zonder via jouw app te gaan, krijgt niemand een token.
+
+1. In Firebase Console, links: **Build → Authentication**.
+2. Klik **Aan de slag** (eerste keer).
+3. Tabblad **Sign-in method** → klik op **Anoniem** → schuif **Inschakelen** aan → **Opslaan**.
+
+### Security rules
+
+1. Ga terug naar **Build → Firestore Database**.
+2. Klik op het tabblad **Regels**.
+3. Vervang de inhoud door:
 
    ```
    rules_version = '2';
    service cloud.firestore {
      match /databases/{database}/documents {
-       match /{document=**} {
-         allow read, write: if true;
+       match /uitgaven/{doc} {
+         allow read, write: if request.auth != null;
        }
      }
    }
    ```
-3. Klik **Publiceren**.
+4. Klik **Publiceren**.
 
-> De pincode in de app doet de toegangscontrole. Deel de URL alleen met je ouders.
+> Combinatie pincode (in de app) + anonymous-auth-token (afgedwongen door rules) = drempel hoog genoeg voor deze use case. Deel de URL alleen met je ouders.
+
+### Optioneel — API key beperken tot je domein
+
+Voor een extra laag (blokkeert misbruik vanaf andere websites die jouw API key zouden vinden):
+
+1. [console.cloud.google.com](https://console.cloud.google.com/) → kies project `reis-uitgaven`.
+2. **APIs & Services → Credentials**.
+3. Klik op de "Browser key (auto created by Firebase)".
+4. **Application restrictions** → **HTTP referrers** → voeg toe: `https://jouw-naam.netlify.app/*` en `http://localhost:4200/*` (voor lokaal testen).
+5. **Save**. Effect na ~5 min.
 
 ## 3. Web-app registreren en config kopiëren
 
