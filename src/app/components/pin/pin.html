@@ -11,8 +11,10 @@
     }
   </div>
 
-  @if (fout()) {
-    <p class="pin__fout">Onjuiste pincode</p>
+  @if (bezig()) {
+    <p class="pin__fout pin__fout--bezig">Even controleren…</p>
+  } @else if (foutTekst(); as f) {
+    <p class="pin__fout">{{ f }}</p>
   } @else {
     <p class="pin__fout pin__fout--leeg">&nbsp;</p>
   }
@@ -22,11 +24,22 @@
       @if (toets === '') {
         <span></span>
       } @else if (toets === 'wis') {
-        <button type="button" class="pin__key pin__key--actie" (click)="drukToets(toets)" aria-label="Wis">
+        <button
+          type="button"
+          class="pin__key pin__key--actie"
+          (click)="drukToets(toets)"
+          [disabled]="bezig()"
+          aria-label="Wis"
+        >
           ⌫
         </button>
       } @else {
-        <button type="button" class="pin__key" (click)="drukToets(toets)">
+        <button
+          type="button"
+          class="pin__key"
+          (click)="drukToets(toets)"
+          [disabled]="bezig()"
+        >
           {{ toets }}
         </button>
       }

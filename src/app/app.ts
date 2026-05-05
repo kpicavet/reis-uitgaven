@@ -75,7 +75,7 @@ export class App {
     }
   }
 
-  uitloggen(): void {
-    this.auth.uitloggen();
+  async uitloggen(): Promise<void> {
+    await this.auth.uitloggen();
   }
 }

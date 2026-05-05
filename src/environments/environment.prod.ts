@@ -1,6 +1,5 @@
 export const environment = {
   production: true,
-  pincode: "0672",
   firebase: {
     apiKey: "AIzaSyB7HMqPGjXFPnNS5vcijTvI5Msk2C_HkrY",
     authDomain: "reis-uitgaven.firebaseapp.com",

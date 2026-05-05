@@ -64,11 +64,17 @@
   &__fout {
     color: var(--danger);
     font-size: 0.9rem;
-    height: 1.2rem;
+    min-height: 1.2rem;
     margin: 0;
+    text-align: center;
+    padding: 0 1rem;
 
     &--leeg {
       visibility: hidden;
+    }
+
+    &--bezig {
+      color: var(--text-muted);
     }
   }
 

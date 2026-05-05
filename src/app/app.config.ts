@@ -1,7 +1,14 @@
 import { ApplicationConfig, inject, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { getApp, provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { Auth, getAuth, provideAuth, signInAnonymously } from '@angular/fire/auth';
+import {
+  Auth,
+  browserSessionPersistence,
+  getAuth,
+  provideAuth,
+  setPersistence,
+} from '@angular/fire/auth';
+import { provideFunctions, getFunctions } from '@angular/fire/functions';
 import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
@@ -10,10 +17,11 @@ export const appConfig: ApplicationConfig = {
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
+    provideFunctions(() => getFunctions(getApp(), 'europe-west1')),
     provideAppInitializer(() => {
       const auth = inject(Auth);
-      return signInAnonymously(auth).catch((err) => {
-        console.error('Anonieme login mislukt:', err);
+      return setPersistence(auth, browserSessionPersistence).catch((err) => {
+        console.error('Persistence setup mislukt:', err);
       });
     }),
   ],

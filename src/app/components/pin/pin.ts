@@ -13,6 +13,8 @@ export class Pin {
 
   protected readonly cijfers = signal<string>('');
   protected readonly fout = signal(false);
+  protected readonly bezig = signal(false);
+  protected readonly foutTekst = signal<string | null>(null);
   protected readonly toetsen: ReadonlyArray<string> = [
     '1',
     '2',
@@ -34,12 +36,15 @@ export class Pin {
   });
 
   drukToets(toets: string): void {
-    if (toets === '') return;
+    if (toets === '' || this.bezig()) return;
     this.fout.set(false);
+    this.foutTekst.set(null);
+
     if (toets === 'wis') {
       this.cijfers.update((c) => c.slice(0, -1));
       return;
     }
+
     this.cijfers.update((c) => {
       if (c.length >= 4) return c;
       const nieuwe = c + toets;
@@ -50,10 +55,14 @@ export class Pin {
     });
   }
 
-  private controleer(pin: string): void {
-    const ok = this.auth.probeerInloggen(pin);
-    if (!ok) {
+  private async controleer(pin: string): Promise<void> {
+    this.bezig.set(true);
+    const resultaat = await this.auth.probeerInloggen(pin);
+    this.bezig.set(false);
+
+    if (!resultaat.ok) {
       this.fout.set(true);
+      this.foutTekst.set(resultaat.reden);
       setTimeout(() => {
         this.cijfers.set('');
       }, 600);

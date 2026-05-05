@@ -1,32 +1,55 @@
-import { Injectable, signal } from '@angular/core';
-import { environment } from '../../environments/environment';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Auth, signInWithCustomToken, signOut, user } from '@angular/fire/auth';
+import { Functions, httpsCallable } from '@angular/fire/functions';
+import { firstValueFrom } from 'rxjs';
 
-const SESSION_KEY = 'reis-uitgaven:auth';
+interface VerifyResultaat {
+  token: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly _ingelogd = signal<boolean>(this.leesSessie());
-  readonly ingelogd = this._ingelogd.asReadonly();
+  private readonly auth = inject(Auth);
+  private readonly functions = inject(Functions);
 
-  probeerInloggen(pincode: string): boolean {
-    const klopt = pincode === environment.pincode;
-    if (klopt) {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      this._ingelogd.set(true);
-    }
-    return klopt;
+  private readonly user$ = user(this.auth);
+  private readonly _gebruiker = signal<unknown>(null);
+  private readonly _initieelGeladen = signal(false);
+
+  readonly ingelogd = computed(() => this._gebruiker() !== null);
+  readonly initieelGeladen = this._initieelGeladen.asReadonly();
+
+  constructor() {
+    this.user$.subscribe((u) => {
+      this._gebruiker.set(u);
+      this._initieelGeladen.set(true);
+    });
   }
 
-  uitloggen(): void {
-    sessionStorage.removeItem(SESSION_KEY);
-    this._ingelogd.set(false);
-  }
-
-  private leesSessie(): boolean {
+  async probeerInloggen(pincode: string): Promise<{ ok: true } | { ok: false; reden: string }> {
     try {
-      return sessionStorage.getItem(SESSION_KEY) === '1';
-    } catch {
-      return false;
+      const verify = httpsCallable<{ pin: string }, VerifyResultaat>(this.functions, 'verifyPin');
+      const resultaat = await verify({ pin: pincode });
+      await signInWithCustomToken(this.auth, resultaat.data.token);
+      return { ok: true };
+    } catch (e: unknown) {
+      const code = (e as { code?: string })?.code ?? '';
+      if (code.includes('resource-exhausted')) {
+        return { ok: false, reden: 'Te veel pogingen — probeer over een uur opnieuw.' };
+      }
+      if (code.includes('permission-denied')) {
+        return { ok: false, reden: 'Onjuiste pincode.' };
+      }
+      return { ok: false, reden: 'Inloggen mislukt. Controleer je verbinding.' };
     }
+  }
+
+  async uitloggen(): Promise<void> {
+    await signOut(this.auth);
+  }
+
+  async wachtTotKlaar(): Promise<void> {
+    if (this._initieelGeladen()) return;
+    await firstValueFrom(this.user$);
   }
 }
