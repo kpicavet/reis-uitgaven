@@ -31,9 +31,7 @@ export class AuthService {
       const verify = httpsCallable<{ pin: string }, VerifyResultaat>(this.functions, 'verifyPin');
       const resultaat = await verify({ pin: pincode });
       const credential = await signInWithCustomToken(this.auth, resultaat.data.token);
-      const tokenResult = await credential.user.getIdTokenResult(true);
-      console.log('[DEBUG] Token claims na inloggen:', tokenResult.claims);
-      console.log('[DEBUG] verified claim:', tokenResult.claims['verified']);
+      await credential.user.getIdToken(true);
       return { ok: true };
     } catch (e: unknown) {
       const code = (e as { code?: string })?.code ?? '';
