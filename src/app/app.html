@@ -7,10 +7,36 @@
     <app-pin />
   } @else {
     <header class="topbar">
-      <div class="brand">
-        <span class="brand__mark">✦</span>
-        <h1>Reis Uitgaven</h1>
-      </div>
+      @if (actieveReis(); as reis) {
+        <button
+          type="button"
+          class="topbar__reis"
+          (click)="openReizen()"
+          aria-label="Wissel reis"
+        >
+          <span class="topbar__reis-mark" aria-hidden="true">✦</span>
+          <span class="topbar__reis-tekst">
+            <span class="topbar__reis-titel">
+              <span class="topbar__reis-naam">{{ reis.naam }}</span>
+              <span class="topbar__reis-pijl" aria-hidden="true">▾</span>
+            </span>
+            @if (actieveReisTotalen().length > 0) {
+              <span class="topbar__reis-totalen">
+                @for (t of actieveReisTotalen(); track t.valuta) {
+                  <span class="topbar__reis-totaal">
+                    {{ t.symbool }} {{ t.bedrag | number: '1.2-2' }}
+                  </span>
+                }
+              </span>
+            }
+          </span>
+        </button>
+      } @else {
+        <div class="brand">
+          <span class="brand__mark">✦</span>
+          <h1>Reis Uitgaven</h1>
+        </div>
+      }
       <button class="topbar__logout" type="button" (click)="uitloggen()" aria-label="Uitloggen">
         Uit
       </button>
@@ -20,26 +46,83 @@
       <div class="banner banner--error" role="alert">{{ f }}</div>
     }
 
-    <app-uitgaven-lijst
-      [uitgaven]="uitgaven()"
-      (verwijderAangevraagd)="vraagBevestiging($event)"
-    />
+    @if (!heeftReizen()) {
+      <div class="onboarding">
+        <span class="onboarding__mark" aria-hidden="true">✦</span>
+        <h2>Begin met een reis</h2>
+        <p>
+          Maak je eerste reis aan en alle uitgaven worden er automatisch aan gekoppeld.
+        </p>
+        <button type="button" class="btn btn--primary" (click)="openReizen()">
+          Maak eerste reis
+        </button>
+      </div>
+    } @else {
+      <app-uitgaven-lijst
+        [uitgaven]="uitgaven()"
+        (verwijderAangevraagd)="vraagBevestiging($event)"
+        (bewerkAangevraagd)="vraagBewerken($event)"
+      />
 
-    <button
-      class="fab"
-      type="button"
-      (click)="openForm()"
-      aria-label="Nieuwe uitgave toevoegen"
-    >
-      <span aria-hidden="true">+</span>
-    </button>
+      <button
+        class="fab"
+        type="button"
+        (click)="openForm()"
+        [disabled]="!actieveReis()"
+        aria-label="Nieuwe uitgave toevoegen"
+      >
+        <span aria-hidden="true">+</span>
+      </button>
+    }
 
     @if (formOpen()) {
       <app-uitgave-form
         [bezig]="bezig()"
+        [bewerkenVan]="bewerkenVan()"
+        [minDatum]="actieveReis()?.startDatum ?? null"
+        [maxDatum]="actieveReis()?.eindDatum ?? null"
         (opgeslagen)="opslaan($event)"
         (gesloten)="sluitForm()"
       />
+    }
+
+    @if (reizenSheetOpen()) {
+      <app-reizen-sheet
+        (gesloten)="sluitReizen()"
+        (verwijderAangevraagd)="vraagReisVerwijderen($event)"
+      />
+    }
+
+    @if (bevestigReisVerwijderen(); as r) {
+      <div class="modal-backdrop" (click)="annuleerReisVerwijderen()">
+        <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+          <h2>Reis verwijderen?</h2>
+          <p class="modal__text">
+            <strong>{{ r.naam }}</strong> en
+            @if (reisVerwijderAantal() === 0) {
+              alle gekoppelde uitgaven (er zijn er nog geen)
+            } @else if (reisVerwijderAantal() === 1) {
+              <strong>1 uitgave</strong>
+            } @else {
+              <strong>{{ reisVerwijderAantal() }} uitgaven</strong>
+            }
+            worden definitief verwijderd. Dit kan niet ongedaan worden gemaakt.
+          </p>
+          <div class="modal__buttons">
+            <button type="button" class="btn btn--ghost" (click)="annuleerReisVerwijderen()">
+              Annuleer
+            </button>
+            <button
+              type="button"
+              class="btn btn--danger"
+              (click)="bevestigEnVerwijderReis()"
+              [disabled]="bezig()"
+            >
+              Verwijder definitief
+            </button>
+          </div>
+        </div>
+      </div>
     }
 
     @if (bevestigVerwijderen(); as u) {

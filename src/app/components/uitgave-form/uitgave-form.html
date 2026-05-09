@@ -1,9 +1,15 @@
 <div class="sheet-backdrop" (click)="achtergrond($event)">
-  <div class="sheet" role="dialog" aria-modal="true" aria-label="Nieuwe uitgave">
+  <div class="sheet" role="dialog" aria-modal="true" [attr.aria-label]="modus() === 'bewerken' ? 'Uitgave bewerken' : 'Nieuwe uitgave'">
     <div class="sheet__handle" aria-hidden="true"></div>
 
     <header class="sheet__kop">
-      <h2>Nieuwe uitgave</h2>
+      <h2>
+        @if (modus() === 'bewerken') {
+          Uitgave bewerken
+        } @else {
+          Nieuwe uitgave
+        }
+      </h2>
       <button type="button" class="sheet__sluit" (click)="sluiten()" aria-label="Sluiten">✕</button>
     </header>
 
@@ -14,9 +20,15 @@
           type="date"
           [value]="datum()"
           (input)="setDatum($any($event.target).value)"
+          [attr.min]="minDatum()"
+          [attr.max]="maxDatum()"
+          [class.veld__input--fout]="!datumGeldig()"
           class="veld__input"
           required
         />
+        @if (!datumGeldig()) {
+          <span class="veld__hint veld__hint--fout">Kies een datum binnen de reis.</span>
+        }
       </label>
 
       <div class="veld-rij">
@@ -47,6 +59,25 @@
             }
           </select>
         </label>
+      </div>
+
+      <div class="veld">
+        <span class="veld__label">Categorie</span>
+        <div class="categorie-chips" role="radiogroup" aria-label="Categorie">
+          @for (c of categorieen; track c.code) {
+            <button
+              type="button"
+              class="chip"
+              [class.chip--actief]="categorie() === c.code"
+              role="radio"
+              [attr.aria-checked]="categorie() === c.code"
+              (click)="setCategorie(c.code)"
+            >
+              <span class="chip__icoon" aria-hidden="true">{{ c.icoon }}</span>
+              <span class="chip__label">{{ c.label }}</span>
+            </button>
+          }
+        </div>
       </div>
 
       <label class="veld">

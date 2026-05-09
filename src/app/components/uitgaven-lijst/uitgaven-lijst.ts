@@ -1,18 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { Uitgave, VALUTAS, Valuta } from '../../models/uitgave.model';
+import {
+  CategorieInfo,
+  Uitgave,
+  Valuta,
+  ValutaTotaal,
+  berekenTotalen,
+  categorieInfo,
+  valutaSymbool,
+} from '../../models/uitgave.model';
 
 interface DagGroep {
   datum: string;
   label: string;
-  totalen: { valuta: Valuta; bedrag: number; symbool: string }[];
+  totalen: ValutaTotaal[];
   uitgaven: Uitgave[];
 }
-
-const VALUTA_INDEX: Record<Valuta, string> = VALUTAS.reduce((acc, v) => {
-  acc[v.code] = v.symbool;
-  return acc;
-}, {} as Record<Valuta, string>);
 
 @Component({
   selector: 'app-uitgaven-lijst',
@@ -25,6 +28,7 @@ const VALUTA_INDEX: Record<Valuta, string> = VALUTAS.reduce((acc, v) => {
 export class UitgavenLijst {
   readonly uitgaven = input.required<readonly Uitgave[]>();
   readonly verwijderAangevraagd = output<Uitgave>();
+  readonly bewerkAangevraagd = output<Uitgave>();
 
   protected readonly dagen = computed<DagGroep[]>(() => {
     const lijst = this.uitgaven();
@@ -41,29 +45,29 @@ export class UitgavenLijst {
 
     return datums.map((datum) => {
       const uitgavenVoorDag = map.get(datum) ?? [];
-      const totalenMap = new Map<Valuta, number>();
-      for (const u of uitgavenVoorDag) {
-        totalenMap.set(u.valuta, (totalenMap.get(u.valuta) ?? 0) + u.bedrag);
-      }
       return {
         datum,
         label: this.formatteerDatum(datum),
-        totalen: Array.from(totalenMap.entries()).map(([valuta, bedrag]) => ({
-          valuta,
-          bedrag,
-          symbool: VALUTA_INDEX[valuta] ?? valuta,
-        })),
+        totalen: berekenTotalen(uitgavenVoorDag),
         uitgaven: uitgavenVoorDag,
       } satisfies DagGroep;
     });
   });
 
   symbool(valuta: Valuta): string {
-    return VALUTA_INDEX[valuta] ?? valuta;
+    return valutaSymbool(valuta);
+  }
+
+  categorie(uitgave: Uitgave): CategorieInfo {
+    return categorieInfo(uitgave.categorie);
   }
 
   vraagVerwijderen(uitgave: Uitgave): void {
     this.verwijderAangevraagd.emit(uitgave);
+  }
+
+  vraagBewerken(uitgave: Uitgave): void {
+    this.bewerkAangevraagd.emit(uitgave);
   }
 
   private formatteerDatum(datum: string): string {

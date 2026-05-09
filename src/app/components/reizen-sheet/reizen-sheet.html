@@ -1,0 +1,166 @@
+<div class="sheet-backdrop" (click)="achtergrond($event)">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Reizen">
+    <div class="sheet__handle" aria-hidden="true"></div>
+
+    <header class="sheet__kop">
+      <h2>
+        @if (modus() === 'lijst') {
+          Reizen
+        } @else {
+          {{ formTitel() }}
+        }
+      </h2>
+      <button type="button" class="sheet__sluit" (click)="sluit()" aria-label="Sluiten">✕</button>
+    </header>
+
+    @if (fout(); as f) {
+      <div class="banner banner--error" role="alert">{{ f }}</div>
+    }
+
+    @if (modus() === 'lijst') {
+      <div class="reizen-lijst">
+        @for (r of reizenLijst(); track r.id) {
+          <div
+            class="reis"
+            [class.reis--actief]="r.id === actieveReisId()"
+            [class.reis--archief]="r.archief"
+          >
+            <button
+              type="button"
+              class="reis__kies"
+              (click)="kies(r)"
+              [attr.aria-pressed]="r.id === actieveReisId()"
+            >
+              <span class="reis__naam">
+                {{ r.naam }}
+                @if (r.archief) {
+                  <span class="reis__badge">archief</span>
+                }
+              </span>
+              <span class="reis__datums">{{ formatteerDatums(r) }}</span>
+              @let totalen = totalenVoor(r.id);
+              @if (totalen.length > 0) {
+                <span class="reis__totalen">
+                  @for (t of totalen; track t.valuta) {
+                    <span class="reis__totaal">
+                      {{ t.symbool }} {{ t.bedrag | number: '1.2-2' }}
+                    </span>
+                  }
+                </span>
+              }
+            </button>
+            <button
+              type="button"
+              class="reis__bewerk"
+              (click)="startBewerken(r)"
+              aria-label="Bewerk reis"
+            >
+              ✎
+            </button>
+          </div>
+        } @empty {
+          <p class="reizen-leeg">
+            @if (toonArchief()) {
+              Geen reizen om te tonen.
+            } @else {
+              Nog geen reizen.
+            }
+          </p>
+        }
+      </div>
+
+      <div class="sheet__acties sheet__acties--lijst">
+        @if (heeftGearchiveerd()) {
+          <button type="button" class="btn btn--ghost" (click)="toggleArchief()">
+            @if (toonArchief()) {
+              Verberg archief
+            } @else {
+              Toon archief
+            }
+          </button>
+        }
+        <button type="button" class="btn btn--primary" (click)="startNieuw()">
+          Nieuwe reis
+        </button>
+      </div>
+    } @else {
+      <form class="sheet__form" (submit)="$event.preventDefault(); opslaan()">
+        <label class="veld">
+          <span class="veld__label">Naam</span>
+          <input
+            type="text"
+            [value]="naam()"
+            (input)="setNaam($any($event.target).value)"
+            class="veld__input"
+            placeholder="bv. Thailand 2026"
+            maxlength="60"
+            required
+            autofocus
+          />
+        </label>
+
+        <div class="veld-rij">
+          <label class="veld">
+            <span class="veld__label">Start</span>
+            <input
+              type="date"
+              [value]="startDatum()"
+              (input)="setStartDatum($any($event.target).value)"
+              class="veld__input"
+              required
+            />
+          </label>
+          <label class="veld">
+            <span class="veld__label">Einde (optioneel)</span>
+            <input
+              type="date"
+              [value]="eindDatum()"
+              (input)="setEindDatum($any($event.target).value)"
+              [min]="startDatum()"
+              class="veld__input"
+            />
+          </label>
+        </div>
+
+        @if (isBewerken()) {
+          <label class="veld veld--rij">
+            <input
+              type="checkbox"
+              [checked]="archief()"
+              (change)="toggleVeldArchief()"
+              class="veld__checkbox"
+            />
+            <span class="veld__label veld__label--inline">Archiveren</span>
+          </label>
+        }
+
+        <div class="sheet__acties">
+          @if (isBewerken()) {
+            <button
+              type="button"
+              class="btn btn--danger-ghost"
+              (click)="vraagVerwijderen()"
+              [disabled]="bezig()"
+            >
+              Verwijder
+            </button>
+          }
+          <button type="button" class="btn btn--ghost" (click)="annuleerForm()">
+            Annuleer
+          </button>
+          <button
+            type="submit"
+            class="btn btn--primary"
+            [disabled]="!geldig() || bezig()"
+          >
+            @if (bezig()) {
+              Opslaan…
+            } @else {
+              Opslaan
+            }
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

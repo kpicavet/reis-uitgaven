@@ -21,15 +21,30 @@
 
         <ul class="dag__items">
           @for (u of dag.uitgaven; track u.id) {
+            @let cat = categorie(u);
             <li class="item">
-              <div class="item__bedrag">
-                <span class="item__symbool">{{ symbool(u.valuta) }}</span>
-                <span class="item__cijfers">{{ u.bedrag | number: '1.2-2' }}</span>
-                <span class="item__valuta">{{ u.valuta }}</span>
-              </div>
-              @if (u.omschrijving) {
-                <div class="item__omschrijving">{{ u.omschrijving }}</div>
-              }
+              <button
+                type="button"
+                class="item__hoofd"
+                (click)="vraagBewerken(u)"
+                aria-label="Bewerk uitgave"
+              >
+                <span class="item__bedrag">
+                  <span class="item__symbool">{{ symbool(u.valuta) }}</span>
+                  <span class="item__cijfers">{{ u.bedrag | number: '1.2-2' }}</span>
+                  <span class="item__valuta">{{ u.valuta }}</span>
+                </span>
+                <span class="item__meta">
+                  <span class="item__categorie">
+                    <span class="item__categorie-icoon" aria-hidden="true">{{ cat.icoon }}</span>
+                    <span class="item__categorie-label">{{ cat.label }}</span>
+                  </span>
+                  @if (u.omschrijving) {
+                    <span class="item__scheider" aria-hidden="true">·</span>
+                    <span class="item__omschrijving">{{ u.omschrijving }}</span>
+                  }
+                </span>
+              </button>
               <button
                 type="button"
                 class="item__verwijder"

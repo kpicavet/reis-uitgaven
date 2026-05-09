@@ -112,7 +112,6 @@
     }
 
     &--bedrag {
-      font-size: 1.4rem;
       font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
@@ -122,7 +121,7 @@
       padding-right: 2.2rem;
       background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%),
         linear-gradient(135deg, var(--gold) 50%, transparent 50%);
-      background-position: calc(100% - 1rem) 1.15rem, calc(100% - 0.6rem) 1.15rem;
+      background-position: calc(100% - 1rem) 50%, calc(100% - 0.6rem) 50%;
       background-size: 6px 6px, 6px 6px;
       background-repeat: no-repeat;
     }
@@ -130,6 +129,56 @@
     &--fout {
       border-color: var(--danger);
     }
+  }
+
+  &__hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
+
+    &--fout {
+      color: #f0a8a8;
+    }
+  }
+}
+
+.categorie-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  transition: all 0.15s ease;
+
+  &__icoon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  &__label {
+    line-height: 1;
+  }
+
+  &:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  &--actief {
+    background: rgba(240, 201, 122, 0.14);
+    border-color: var(--gold);
+    color: var(--text);
   }
 }
 

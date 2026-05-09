@@ -1,6 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { UitgaveInvoer, VALUTAS, Valuta } from '../../models/uitgave.model';
+import {
+  CATEGORIEEN,
+  Categorie,
+  Uitgave,
+  UitgaveFormInvoer,
+  VALUTAS,
+  Valuta,
+} from '../../models/uitgave.model';
 
 function vandaagISO(): string {
   const d = new Date();
@@ -8,6 +15,12 @@ function vandaagISO(): string {
   const maand = String(d.getMonth() + 1).padStart(2, '0');
   const dag = String(d.getDate()).padStart(2, '0');
   return `${jaar}-${maand}-${dag}`;
+}
+
+function klampDatum(datum: string, min: string | null, max: string | null): string {
+  if (min && datum < min) return min;
+  if (max && datum > max) return max;
+  return datum;
 }
 
 @Component({
@@ -20,15 +33,40 @@ function vandaagISO(): string {
 })
 export class UitgaveForm {
   readonly bezig = input(false);
-  readonly opgeslagen = output<UitgaveInvoer>();
+  readonly bewerkenVan = input<Uitgave | null>(null);
+  readonly minDatum = input<string | null>(null);
+  readonly maxDatum = input<string | null>(null);
+  readonly opgeslagen = output<UitgaveFormInvoer>();
   readonly gesloten = output<void>();
 
   protected readonly valutas = VALUTAS;
+  protected readonly categorieen = CATEGORIEEN;
   protected readonly datum = signal<string>(vandaagISO());
   protected readonly bedrag = signal<string>('');
   protected readonly valuta = signal<Valuta>('EUR');
+  protected readonly categorie = signal<Categorie>('eten');
   protected readonly omschrijving = signal<string>('');
   protected readonly raakBedrag = signal(false);
+
+  protected readonly modus = computed<'nieuw' | 'bewerken'>(() =>
+    this.bewerkenVan() ? 'bewerken' : 'nieuw',
+  );
+
+  constructor() {
+    effect(() => {
+      const u = this.bewerkenVan();
+      if (u) {
+        this.datum.set(u.datum);
+        this.bedrag.set(u.bedrag.toString().replace('.', ','));
+        this.valuta.set(u.valuta);
+        this.categorie.set(u.categorie ?? 'overig');
+        this.omschrijving.set(u.omschrijving ?? '');
+        this.raakBedrag.set(false);
+      } else {
+        this.datum.set(klampDatum(vandaagISO(), this.minDatum(), this.maxDatum()));
+      }
+    });
+  }
 
   protected readonly bedragNummer = computed<number | null>(() => {
     const ruw = this.bedrag().replace(',', '.').trim();
@@ -38,7 +76,19 @@ export class UitgaveForm {
     return Math.round(n * 100) / 100;
   });
 
-  protected readonly geldig = computed(() => this.bedragNummer() !== null && !!this.datum());
+  protected readonly datumGeldig = computed(() => {
+    const d = this.datum();
+    if (!d) return false;
+    const min = this.minDatum();
+    const max = this.maxDatum();
+    if (min && d < min) return false;
+    if (max && d > max) return false;
+    return true;
+  });
+
+  protected readonly geldig = computed(
+    () => this.bedragNummer() !== null && this.datumGeldig(),
+  );
 
   setBedrag(waarde: string): void {
     this.bedrag.set(waarde);
@@ -50,6 +100,10 @@ export class UitgaveForm {
 
   setValuta(waarde: Valuta): void {
     this.valuta.set(waarde);
+  }
+
+  setCategorie(waarde: Categorie): void {
+    this.categorie.set(waarde);
   }
 
   setOmschrijving(waarde: string): void {
@@ -68,6 +122,7 @@ export class UitgaveForm {
       datum: this.datum(),
       bedrag: n,
       valuta: this.valuta(),
+      categorie: this.categorie(),
       omschrijving: this.omschrijving().trim(),
     });
   }
