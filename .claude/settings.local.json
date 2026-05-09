@@ -6,7 +6,8 @@
       "Bash(npm view *)",
       "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:4200/)",
       "Bash(curl -s http://localhost:4200/)",
-      "Bash(npx ng *)"
+      "Bash(npx ng *)",
+      "Bash(npm run *)"
     ]
   }
 }

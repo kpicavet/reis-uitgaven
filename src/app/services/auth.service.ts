@@ -1,7 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Auth, signInWithCustomToken, signOut, user } from '@angular/fire/auth';
+import { Auth, User, signInWithCustomToken, signOut, user } from '@angular/fire/auth';
 import { Functions, httpsCallable } from '@angular/fire/functions';
-import { firstValueFrom } from 'rxjs';
 
 interface VerifyResultaat {
   token: string;
@@ -13,7 +12,7 @@ export class AuthService {
   private readonly functions = inject(Functions);
 
   private readonly user$ = user(this.auth);
-  private readonly _gebruiker = signal<unknown>(null);
+  private readonly _gebruiker = signal<User | null>(null);
   private readonly _initieelGeladen = signal(false);
 
   readonly ingelogd = computed(() => this._gebruiker() !== null);
@@ -47,10 +46,5 @@ export class AuthService {
 
   async uitloggen(): Promise<void> {
     await signOut(this.auth);
-  }
-
-  async wachtTotKlaar(): Promise<void> {
-    if (this._initieelGeladen()) return;
-    await firstValueFrom(this.user$);
   }
 }

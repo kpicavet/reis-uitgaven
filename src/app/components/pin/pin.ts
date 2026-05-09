@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 
+// Shake-animatie duurt 0.45s (zie pin.scss); houd cijfers iets langer zichtbaar zodat de fout te zien is voor we wissen.
+const FOUT_RESET_VERTRAGING_MS = 600;
+
 @Component({
   selector: 'app-pin',
   standalone: true,
@@ -65,7 +68,7 @@ export class Pin {
       this.foutTekst.set(resultaat.reden);
       setTimeout(() => {
         this.cijfers.set('');
-      }, 600);
+      }, FOUT_RESET_VERTRAGING_MS);
     }
   }
 }

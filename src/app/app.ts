@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { UitgavenService } from './services/uitgaven.service';
@@ -20,14 +20,13 @@ export class App {
   private readonly uitgavenService = inject(UitgavenService);
 
   readonly ingelogd = this.auth.ingelogd;
+  readonly initieelGeladen = this.auth.initieelGeladen;
   readonly uitgaven = this.uitgavenService.uitgaven;
 
   readonly formOpen = signal(false);
   readonly bevestigVerwijderen = signal<Uitgave | null>(null);
   readonly bezig = signal(false);
   readonly fout = signal<string | null>(null);
-
-  readonly aantalUitgaven = computed(() => this.uitgaven().length);
 
   openForm(): void {
     this.fout.set(null);

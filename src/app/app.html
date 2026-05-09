@@ -1,5 +1,9 @@
 <div class="app-shell">
-  @if (!ingelogd()) {
+  @if (!initieelGeladen()) {
+    <div class="splash" role="status" aria-label="Bezig met laden">
+      <span class="splash__mark" aria-hidden="true">✦</span>
+    </div>
+  } @else if (!ingelogd()) {
     <app-pin />
   } @else {
     <header class="topbar">

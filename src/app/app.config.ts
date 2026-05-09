@@ -1,6 +1,11 @@
 import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 import { getApp, provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import {
+  provideFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from '@angular/fire/firestore';
 import {
   browserSessionPersistence,
   initializeAuth,
@@ -18,7 +23,13 @@ export const appConfig: ApplicationConfig = {
         persistence: browserSessionPersistence,
       }),
     ),
-    provideFirestore(() => getFirestore()),
+    provideFirestore(() =>
+      initializeFirestore(getApp(), {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        }),
+      }),
+    ),
     provideFunctions(() => getFunctions(getApp(), 'europe-west1')),
   ],
 };

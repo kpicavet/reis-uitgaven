@@ -1,9 +1,29 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function ingelogd() {
+      return request.auth != null && request.auth.token.verified == true;
+    }
+
+    function geldigeUitgave(d) {
+      return d.keys().hasOnly(['datum', 'bedrag', 'valuta', 'omschrijving', 'aangemaaktOp'])
+        && d.keys().hasAll(['datum', 'bedrag', 'valuta', 'omschrijving', 'aangemaaktOp'])
+        && d.datum is string
+        && d.datum.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && d.bedrag is number
+        && d.bedrag > 0
+        && d.bedrag < 1000000
+        && d.valuta in ['EUR', 'USD', 'GBP', 'TRY', 'THB', 'JPY', 'MAD', 'AED', 'PLN', 'CZK', 'HUF', 'MXN']
+        && d.omschrijving is string
+        && d.omschrijving.size() <= 80
+        && d.aangemaaktOp == request.time;
+    }
+
     match /uitgaven/{doc} {
-      allow read, write: if request.auth != null
-        && request.auth.token.verified == true;
+      allow read: if ingelogd();
+      allow create: if ingelogd() && geldigeUitgave(request.resource.data);
+      allow delete: if ingelogd();
+      allow update: if false;
     }
 
     match /{document=**} {
